@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>tail -f web</title>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, "Courier New", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            font-size: small;
+        }
+
+        #messages>li {
+            padding: 0.5rem 1rem;
+            animation: fadeIn 1s;
+
+        }
+
+        #messages>li:nth-child(odd) {
+            background: #efefef;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script src="/tail-f/ws/socket.io.js"></script>
+    <script>
+        var socket = io({path:"/tail-f/ws"});
+
+        addEventListener("load", (event) => {
+
+            var messages = document.getElementById('messages');
+
+            socket.on('chat message', function (msg) {
+                var item = document.createElement('li');
+                item.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        });
+
+    </script>
+    <ul id="messages"></ul>
+
+</body>
+
+</html>

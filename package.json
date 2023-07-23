@@ -1,0 +1,23 @@
+{
+  "name": "tail-fweb",
+  "version": "1.0.0",
+  "description": "Tail a file and stream it over web",
+  "main": "index.js",
+  "bin": {
+    "tail-fweb": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Abhijeet Apsunde",
+  "license": "MIT",
+  "dependencies": {
+    "command-line-args": "^5.2.1",
+    "express": "^4.18.2",
+    "line-reader": "^0.4.0",
+    "morgan": "^1.10.0",
+    "nodejs-tail": "^1.1.1",
+    "socket.io": "^4.7.1"
+  }
+}
