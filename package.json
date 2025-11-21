@@ -13,11 +13,11 @@
   "author": "Abhijeet Apsunde",
   "license": "MIT",
   "dependencies": {
-    "command-line-args": "^5.2.1",
-    "express": "^4.18.2",
+    "command-line-args": "^6.0.1",
+    "express": "^4.21.2",
     "line-reader": "^0.4.0",
-    "morgan": "^1.10.0",
+    "morgan": "^1.10.1",
     "nodejs-tail": "^1.1.1",
-    "socket.io": "^4.7.1"
+    "socket.io": "^4.8.1"
   }
 }
