@@ -1,6 +1,6 @@
 {
   "name": "tail-fweb",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Tail a file and stream it over web",
   "main": "index.js",
   "bin": {
