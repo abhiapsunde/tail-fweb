@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+'use strict';
+
+const commandLineArgs = require('command-line-args');
+const express         = require('express');
+const http            = require('http');
+const morgan          = require('morgan');
+const tailFweb        = require('../lib');
+
+const options = commandLineArgs([
+    { name: 'filename', alias: 'f', type: String },
+    { name: 'port',     alias: 'p', type: Number },
+    { name: 'daemon',   alias: 'd', type: Boolean, defaultOption: false },
+]);
+
+if (!options.filename) {
+    console.error('Usage: tail-fweb -f <file> [-p <port>]');
+    process.exit(1);
+}
+
+const port = options.port || 3000;
+const app  = express();
+const server = http.createServer(app);
+
+app.use(morgan('combined'));
+app.use('/tail-f', tailFweb(options.filename));
+
+process.on('uncaughtException', (err) => console.error('uncaughtException:', err.stack));
+
+server.listen(port, () =>
+    console.log('tail-fweb  →  http://localhost:' + port + '/tail-f  (watching ' + options.filename + ')')
+);

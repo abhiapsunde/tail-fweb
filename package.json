@@ -1,21 +1,32 @@
 {
   "name": "tail-fweb",
-  "version": "1.0.4",
-  "description": "Tail a file and stream it over web",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "tail -f but streamed to a browser. Use as a CLI or embed as Express middleware.",
+  "main": "lib/index.js",
   "bin": {
-    "tail-fweb": "index.js"
+    "tail-fweb": "bin/tail-fweb"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test test/index.test.js"
   },
-  "keywords": [],
+  "keywords": [
+    "tail",
+    "log",
+    "viewer",
+    "stream",
+    "websocket",
+    "express",
+    "middleware",
+    "devtools"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "author": "Abhijeet Apsunde",
   "license": "MIT",
   "dependencies": {
     "command-line-args": "^6.0.1",
-    "express": "^4.21.2",
-    "line-reader": "^0.4.0",
+    "express": "^4.22.2",
     "morgan": "^1.10.1",
     "nodejs-tail": "^1.1.1",
     "socket.io": "^4.8.1"
