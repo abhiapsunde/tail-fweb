@@ -4,6 +4,14 @@ name: Publish to npm
 # action - no separate `npm publish` or git tag step needed. Skips
 # entirely if the version already matches what's live on npm, so it's
 # safe to just always run on every push to main.
+#
+# Uses npm Trusted Publishing (OIDC) - no NPM_TOKEN secret at all. Trust
+# is established on npm's side (the package's Settings -> Trusted
+# Publisher page), matching this exact repo + workflow filename. Requires
+# npm CLI >= 11.5.1, hence the explicit upgrade step below; whatever
+# version ships bundled with actions/setup-node's Node isn't guaranteed to
+# be new enough. Provenance attestation is automatic, no --provenance flag
+# needed.
 
 on:
   push:
@@ -16,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +33,9 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Ensure npm CLI supports trusted publishing (>= 11.5.1)
+        run: npm install -g npm@latest
 
       - name: Compare local version to published version
         id: version-check
@@ -45,5 +58,3 @@ jobs:
       - name: Publish
         if: steps.version-check.outputs.local != steps.version-check.outputs.published
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
