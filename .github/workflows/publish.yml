@@ -1,0 +1,49 @@
+name: Publish to npm
+
+# Bumping the version in package.json and pushing to main IS the release
+# action - no separate `npm publish` or git tag step needed. Skips
+# entirely if the version already matches what's live on npm, so it's
+# safe to just always run on every push to main.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Compare local version to published version
+        id: version-check
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm view "$PACKAGE_NAME" version 2>/dev/null || echo "none")
+          echo "local=$LOCAL_VERSION" >> "$GITHUB_OUTPUT"
+          echo "published=$PUBLISHED_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Local: $LOCAL_VERSION / Published: $PUBLISHED_VERSION"
+
+      - name: Install dependencies
+        if: steps.version-check.outputs.local != steps.version-check.outputs.published
+        run: npm ci
+
+      - name: Run tests
+        if: steps.version-check.outputs.local != steps.version-check.outputs.published
+        run: npm test
+
+      - name: Publish
+        if: steps.version-check.outputs.local != steps.version-check.outputs.published
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

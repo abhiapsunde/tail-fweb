@@ -16,6 +16,7 @@ Stream any log file to a live web UI. Use it as a standalone CLI or embed it dir
 - **History replay** — opening a new tab shows all buffered lines immediately
 - **Search & filter** — type to filter; matches are highlighted inline
 - **Pause scroll** — freeze the viewport while new lines buffer silently (`Space` to resume)
+- **Line wrap toggle** — switch long lines between horizontal scroll and wrapped, remembers your choice
 - **Log-level colours** — `ERROR`/`FATAL` rows tinted red, `WARN` amber, out of the box
 - **Copy & clear** — clipboard copy of visible lines; one-click clear
 - **Embeddable** — mounts as an Express `Router` on any path in your existing app
