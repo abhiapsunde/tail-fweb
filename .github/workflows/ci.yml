@@ -1,0 +1,22 @@
+name: CI
+
+# The actual gate the auto-merge workflow depends on. Runs on every PR
+# (Dependabot's included) regardless of whether package.json itself
+# changed - a pure lockfile bump wouldn't trigger publish.yml's
+# path-filtered test run, so this needs to be unconditional.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm test

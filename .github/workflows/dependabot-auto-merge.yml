@@ -1,0 +1,35 @@
+name: Dependabot auto-merge
+
+# Public repo, so branch protection (main, requiring the "test" check
+# from ci.yml) is actually available here - unlike tailfws, which is
+# private on the free plan and has to chain off workflow_run instead.
+# `gh pr merge --auto` here genuinely waits on that required check via
+# GitHub's own gating, no workaround needed.
+#
+# Patch/minor bumps merge unattended once CI passes. Major bumps always
+# wait for manual review - real breaking-change risk, not something to
+# wave through unattended.
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Enable auto-merge for patch/minor bumps
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
