@@ -1,6 +1,6 @@
 {
   "name": "tail-fweb",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "tail -f but streamed to a browser. Use as a CLI or embed as Express middleware.",
   "main": "lib/index.js",
   "repository": {
