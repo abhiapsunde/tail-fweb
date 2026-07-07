@@ -13,6 +13,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # A hung test previously ran to GitHub's 6h default job cap before
+    # failing, blocking the auto-merge check with no useful signal in
+    # the meantime. Fail fast instead.
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
