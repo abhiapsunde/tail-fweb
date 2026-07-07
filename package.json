@@ -11,7 +11,7 @@
     "tail-fweb": "bin/tail-fweb"
   },
   "scripts": {
-    "test": "node --test --test-force-exit test/index.test.js"
+    "test": "node --test --test-force-exit --test-timeout=15000 test/index.test.js"
   },
   "keywords": [
     "tail",
