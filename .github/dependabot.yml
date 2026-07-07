@@ -10,7 +10,25 @@ updates:
           - "minor"
           - "patch"
     open-pull-requests-limit: 10
+    # Runtime deps as "fix" and devDeps as "chore" so semantic-release
+    # (see release.config.js) recognizes these commits and cuts a patch
+    # release automatically - matches the auto-merge policy in
+    # dependabot-auto-merge.yml, which no longer holds majors for
+    # manual review either.
+    commit-message:
+      prefix: "fix"
+      prefix-development: "chore"
+      include: "scope"
+    ignore:
+      # Intentionally pinned one major behind the primary `express`
+      # dependency - see test/index.test.js's cross-version host test
+      # and package.json's devDependencies comment-equivalent. A major
+      # bump here would silently defeat the point of that test.
+      - dependency-name: "express-legacy-host"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore"

@@ -1,0 +1,58 @@
+name: Release
+
+# Replaces the old "bump version by hand, push to main" release model.
+# semantic-release analyzes conventional-commit types in the commits
+# since the last release tag (fix: -> patch, feat: -> minor,
+# BREAKING CHANGE: -> major; chore/ci/test/docs/refactor don't release)
+# and does the whole thing itself: bump package.json, tag, publish to
+# npm, write a GitHub release, commit the version bump back to main.
+#
+# Because a squash merge uses the PR's single commit message (or the PR
+# title, if the branch had multiple commits) as the commit landing on
+# main, that message needs a conventional-commit prefix for this to
+# pick it up - see dependabot.yml's commit-message config for how
+# dependency-bump PRs get theirs automatically.
+#
+# Chains off CI's own push-to-main run via workflow_run, rather than
+# triggering on push directly, so a release only happens once the same
+# tests that gate PR merges have also passed against main's actual
+# head - not just whatever ran during review.
+#
+# Uses npm Trusted Publishing (OIDC), same as the workflow this
+# replaces - no NPM_TOKEN secret.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Ensure npm CLI supports trusted publishing (>= 11.5.1)
+        run: npm install -g npm@latest
+
+      - run: npm ci
+
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
