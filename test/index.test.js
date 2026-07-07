@@ -4,6 +4,7 @@ const { test }  = require('node:test');
 const assert    = require('node:assert/strict');
 const http      = require('http');
 const express   = require('express');
+const legacyExpress = require('express-legacy-host');
 const fs        = require('fs');
 const os        = require('os');
 const path       = require('path');
@@ -296,6 +297,36 @@ test('maxLines actually caps what gets replayed, not just accepted as an option'
     } finally {
         if (writer) writer.close();
         if (reader) reader.close();
+        server.close();
+        cleanup();
+    }
+});
+
+// ── cross-version host compatibility ──────────────────────────────────────────
+// tail-fweb bundles its own Express and hands back a Router built from it,
+// but the router is designed to be mounted into *someone else's* app - one
+// that could be running a different Express major version than the one
+// bundled here. None of the tests above catch a mismatch there: they always
+// build both the host app and the router from this package's own installed
+// Express, so a Router that only works when the host is the same major
+// version would still pass every one of them. express-legacy-host is an
+// npm alias (see package.json) pinned one major behind the primary
+// `express` dependency, purely so this test can build a host app on a
+// different major than the router itself. Bump the alias's pinned major
+// forward whenever `express` itself moves to a new one.
+test('router mounts and serves correctly in a host app on a different Express major version', async () => {
+    const { file, cleanup } = tmpFile('hello world\n');
+    const hostApp = legacyExpress();
+    hostApp.use('/logs', tailFweb(file));
+    const server = await listen(hostApp);
+    const port = server.address().port;
+
+    try {
+        const res = await get(`http://localhost:${port}/logs/`);
+        assert.equal(res.status, 200);
+        assert.ok(res.body.includes('src="/logs/ws/socket.io.js"'), 'script src');
+        assert.ok(res.body.includes("path: '/logs/ws'"), 'io() path');
+    } finally {
         server.close();
         cleanup();
     }

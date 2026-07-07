@@ -6,9 +6,14 @@ name: Dependabot auto-merge
 # `gh pr merge --auto` here genuinely waits on that required check via
 # GitHub's own gating, no workaround needed.
 #
-# Patch/minor bumps merge unattended once CI passes. Major bumps always
-# wait for manual review - real breaking-change risk, not something to
-# wave through unattended.
+# All dependabot bumps, major included, merge unattended once CI passes.
+# The one risk that's specific to major bumps and that CI didn't used to
+# cover - tail-fweb's router being mounted into a host app on a
+# different Express major than the one bundled here - is now covered by
+# test/index.test.js's "different Express major version" host test. If
+# a future major bump needs a human look (a genuinely new class of risk,
+# not just "it's major"), that's a reason to add a test for it, not to
+# reintroduce a blanket hold here.
 
 on:
   pull_request:
@@ -22,13 +27,7 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - id: metadata
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Enable auto-merge for patch/minor bumps
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+      - name: Enable auto-merge
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
