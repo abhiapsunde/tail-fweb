@@ -43,7 +43,7 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # semantic-release itself requires Node >=22.14 - independent
           # of the package's own `engines` field (Node >=18), which is
