@@ -14,6 +14,19 @@ name: Dependabot auto-merge
 # a future major bump needs a human look (a genuinely new class of risk,
 # not just "it's major"), that's a reason to add a test for it, not to
 # reintroduce a blanket hold here.
+#
+# Branch protection's required-status-checks is set to non-strict
+# (2026-07-19) after PR #18 stalled indefinitely: strict mode requires
+# the check to have passed on a branch that's up to date with main, and
+# nothing here automatically updates a Dependabot PR's branch when main
+# moves ahead of it (Dependabot itself declined a manual "@dependabot
+# rebase" here, replying the base commit hadn't changed, even though it
+# had - had to force it via the update-branch API directly). Non-strict
+# means a PR merges once CI has passed on whatever commit it last ran
+# against, not necessarily the literal latest main - an acceptable
+# trade-off for isolated dependency bumps merging in quick succession,
+# and the one that matches this workflow's own "unattended once CI
+# passes" intent instead of silently stalling on it.
 
 on:
   pull_request:
