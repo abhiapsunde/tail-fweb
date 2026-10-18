@@ -40,8 +40,29 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
+      # Merged with a PAT, not GITHUB_TOKEN, on purpose. GitHub does not
+      # start workflows from a push made with GITHUB_TOKEN. That is loop
+      # prevention and normally the right default; here it broke the
+      # release chain silently. Auto-merge squashed to main, the push
+      # triggered nothing, ci.yml never ran on main, release.yml waits
+      # on a workflow_run from CI on main, and nothing published between
+      # 2026-07-19 and 2026-10-18 while 24 dependency PRs merged
+      # cleanly. A PAT's push looks like a person's and starts workflows
+      # normally.
+      #
+      # AUTOMERGE_PAT is a fine-grained token scoped to this repository
+      # with Contents read/write and Pull requests read/write. It falls
+      # back to GITHUB_TOKEN so a missing or expired token costs the
+      # release rather than the merge.
       - name: Enable auto-merge
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.AUTOMERGE_PAT || secrets.GITHUB_TOKEN }}
+
+      # A token expires silently and puts the repository straight back
+      # into the state this change fixes, with no symptom except
+      # releases stopping.
+      - name: Warn when the PAT is missing
+        if: ${{ !secrets.AUTOMERGE_PAT }}
+        run: echo "::warning title=AUTOMERGE_PAT not set::Merged with GITHUB_TOKEN, so the push to main will not trigger CI and no release will publish."
