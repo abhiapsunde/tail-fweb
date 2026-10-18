@@ -42,6 +42,22 @@ module.exports = {
         // Default failure-reporting tries to label the issue it opens
         // with "semantic-release", a label that doesn't exist in this
         // repo, which 422s and masks whatever the real failure was.
-        ['@semantic-release/github', { labels: false }],
+        [
+            '@semantic-release/github',
+            {
+                labels: false,
+                // Default behaviour comments ":tada: This PR is included
+                // in version X" on every PR in the release. One release
+                // that had been blocked since July swept up 25 merged
+                // PRs and sent 25 emails in a minute. The information is
+                // already in the release notes, which link every PR, so
+                // the comment is a notification with no content.
+                successComment: false,
+                // Failure issues stay on. They fire only when a release
+                // breaks, which is exactly when a notification is worth
+                // having, and this pipeline has now failed silently in
+                // three different ways.
+            },
+        ],
     ],
 };
