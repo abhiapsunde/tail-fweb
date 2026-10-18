@@ -63,6 +63,14 @@ jobs:
       # A token expires silently and puts the repository straight back
       # into the state this change fixes, with no symptom except
       # releases stopping.
+      # The secrets context is not available in a step-level `if`, so
+      # the test happens in the shell. Written as an `if:` first, which
+      # made the whole file fail to parse and took auto-merge down with
+      # it until the next push surfaced it.
       - name: Warn when the PAT is missing
-        if: ${{ !secrets.AUTOMERGE_PAT }}
-        run: echo "::warning title=AUTOMERGE_PAT not set::Merged with GITHUB_TOKEN, so the push to main will not trigger CI and no release will publish."
+        env:
+          PAT: ${{ secrets.AUTOMERGE_PAT }}
+        run: |
+          if [ -z "$PAT" ]; then
+            echo "::warning title=AUTOMERGE_PAT not set::Merged with GITHUB_TOKEN, so the push to main will not trigger CI and no release will publish."
+          fi
